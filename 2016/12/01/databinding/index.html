@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="databinding," />
 
 
 
@@ -85,7 +85,7 @@
 <meta property="og:site_name" content="雨轩紫薰">
 <meta property="og:description" content="一、实体类bean继承BaseObservable,获得了通知UI的能力。
 1234567891011121314151617181920private  class User extends BaseObservable &amp;#123;   private String firstName;   private String lastName;   @Bindable   public Strin">
-<meta property="og:updated_time" content="2016-12-01T01:55:33.000Z">
+<meta property="og:updated_time" content="2017-11-15T15:28:10.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="databinding">
 <meta name="twitter:description" content="一、实体类bean继承BaseObservable,获得了通知UI的能力。
@@ -332,6 +332,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -364,6 +386,7 @@
 <p>Bindable标签在编译时会自动生成BR类，当Model中数据发生改变的时候，通过Set方法调用notifyPropertyChanged的，通知对象的某个字段数据已经更新。</p>
 <p>在UI里，通过实体化的对象添加BaseObservable的addOnPropertyChangedCallBack方法：<br>Adds a callback to listen for changes to the Observable.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">user.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() &#123;</div><div class="line">            @Override</div><div class="line">            public void onPropertyChanged(final Observable observable, final int i) &#123;</div><div class="line">            //TODO</div><div class="line">                runOnUiThread(new Runnable() &#123;</div><div class="line">                    @Override</div><div class="line">                    public void run() &#123;</div><div class="line">                        switch (i) &#123;</div><div class="line">                            case BR.firstName: </div><div class="line">                           		 break;</div><div class="line">                            case BR.lastName:                                                         								 </div><div class="line">                            	 break;</div><div class="line">                            default:</div><div class="line">                                break;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
+
       
     </div>
     
@@ -377,6 +400,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/databinding/" rel="tag"># databinding</a>
+          
+        </div>
       
 
       
@@ -474,7 +503,25 @@
             
 
             
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
             
 
           </nav>
