@@ -382,58 +382,22 @@
       
         
           
-            <h5 id="Rxjava简单入门"><a href="#Rxjava简单入门" class="headerlink" title="Rxjava简单入门"></a>Rxjava简单入门</h5><hr>
-<ul>
-<li>Rxjava 的含义</li>
-<li>Rxjava的外层思路</li>
-<li>一些简单的Rxjava源码分析</li>
-<li>学习Rxjava源码思路的建议</li>
-</ul>
-<h6 id="Rxjava-的含义"><a href="#Rxjava-的含义" class="headerlink" title="Rxjava 的含义"></a>Rxjava 的含义</h6><p>在<a href="https://github.com/ReactiveX/RxJava" target="_blank" rel="external">Rxjava GitHub</a>的解释：RxJava is a Java VM implementation of Reactive Extensions: a library for composing asynchronous and event-based programs by using observable sequences. —“一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库”;通俗地说就是异步，和AsyncTask / Handle类似，扩展的观察者模式。<br>观察者模式：<br>    观察者模式是对象的行为模式，又叫发布-订阅(Publish/Subscribe)模式、模型-视图(Model/View)模式、源-监听器(Source/Listener)模式或从属者(Dependents)模式。<br>　　观察者模式定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个主题对象。这个主题对象在状态上发生变化时，会通知所有观察者对象，使它们能够自动更新自己。比如Button的点击相应<br>　　<br>代码示例：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">view.setOnClickListener(<span class="keyword">new</span> View.onClickListener()&#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">                </div><div class="line">            &#125;</div><div class="line">&#125;;)</div></pre></td></tr></table></figure>
-<h6 id="Rxjava-的外层思路"><a href="#Rxjava-的外层思路" class="headerlink" title="Rxjava 的外层思路"></a>Rxjava 的外层思路</h6><p>Observable ：被观察者；<br>Observer :观察者；<br>subscribe: 实现两者的订阅关系。subscribeOn() 和 observeOn() 两个方法来对线程进行控制。<br>subscribeOn(): 指定 subscribe() 所发生的线程，即 Observable.OnSubscribe 被激活时所处的线程。或者叫做事件产生的线程。<br>observeOn(): 指定 Subscriber 所运行在的线程。或者叫做事件消费的线程。</p>
-<p>Scheduler ——调度器，线程控制器。<br>列举几个默认场景：</p>
-<ul>
-<li>Schedulers.immediate(): 当前线程</li>
-<li>Schedulers.newThread():新线程</li>
-<li>Schedulers.io():</li>
-<li>Schedulers.computation(): 计算所使用的线程,不能被IO所占</li>
-<li>Android 还有一个专用的AndroidSchedulers.mainThread()，它指定的操作将在Android 主线程运行。</li>
-</ul>
-<h6 id="一些简单的Rxjava源码分析"><a href="#一些简单的Rxjava源码分析" class="headerlink" title="一些简单的Rxjava源码分析"></a>一些简单的Rxjava源码分析</h6><p>Observable 被观察者的创建</p>
-<p>图形解说：流控制 （淘一张官方图…表示有点晕）<br><img src="/images/Obserable.png" alt="image"></p>
-<p>Subscriber 是 Obser的一个抽象类，实现了Observer的接口,有onStart(),unsubscribe(){取消订阅}方法。Observable 在 subscribe(new subscriber)[即订阅的时候]方法执行call方法 。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Subscriber</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">Observer</span>&lt;<span class="title">T</span>&gt;, <span class="title">Subscription</span></span></div></pre></td></tr></table></figure>
-<p>RxJava Observable create 源码</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">Observable&lt;T&gt; <span class="title">create</span><span class="params">(OnSubscribe&lt;T&gt; f)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Observable&lt;T&gt;(hook.onCreate(f));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>hook.onCreate(f)的源码 原参数返回 onSubscribe。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public &lt;T&gt; OnSubscribe&lt;T&gt; onCreate(OnSubscribe&lt;T&gt; f) &#123;</div><div class="line">       return f;</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
-<p>Observable.create()方法构造了一个被观察者Observable对象，同时将new出来的OnSubscribe赋值给了该Observable的成员变量onSubscribe。</p>
-<p>subscribe的源码释义 里面的内容剪切部分</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// if not already wrapped</span></div><div class="line">        <span class="keyword">if</span> (!(subscriber <span class="keyword">instanceof</span> SafeSubscriber)) &#123;</div><div class="line">            <span class="comment">// assign to `observer` so we return the protected version</span></div><div class="line">            subscriber = <span class="keyword">new</span> SafeSubscriber&lt;T&gt;(subscriber);</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
-<p>这个SafeSubscriber就是subscriber的代理，让onCompleted和onError只能执行一个</p>
-<blockquote>
-<p>SafeSubscriber的源码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">    public void onError(Throwable e) &#123;</div><div class="line">        // we handle here instead of another method so we don&apos;t add stacks to the frame</div><div class="line">        // which can prevent it from being able to handle StackOverflow</div><div class="line">        Exceptions.throwIfFatal(e);</div><div class="line">        if (!done) &#123;</div><div class="line">            done = true;</div><div class="line">            _onError(e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    @Override</div><div class="line">    public void onCompleted() &#123;</div><div class="line">        if (!done) &#123;</div><div class="line">            done = true;</div><div class="line">            try &#123;</div><div class="line">                actual.onCompleted();</div><div class="line">            &#125; catch (Throwable e) &#123;</div><div class="line">                Exceptions.throwIfFatal(e);</div><div class="line">                RxJavaPluginUtils.handleException(e);</div><div class="line">                throw new OnCompletedFailedException(e.getMessage(), e);</div><div class="line">            &#125; finally &#123;</div><div class="line">                try &#123;</div><div class="line">                    unsubscribe();</div><div class="line">                &#125; catch (Throwable e) &#123;</div><div class="line">                    RxJavaPluginUtils.handleException(e);</div><div class="line">                    throw new UnsubscribeFailedException(e.getMessage(), e);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<p>其中下面的hook.onSubscribeStart(observable, observable.onSubscribe).call(subscriber) 相当于 onSubscribe.call(subscriber)—new 出来的观察者</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// add a significant depth to already huge call stacks.</span></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="comment">// allow the hook to intercept and/or decorate</span></div><div class="line">            hook.onSubscribeStart(observable, observable.onSubscribe).call(subscriber);</div><div class="line">            <span class="keyword">return</span> hook.onSubscribeReturn(subscriber);</div><div class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</div><div class="line">            <span class="comment">// special handling for certain Throwable/Error/Exception types</span></div><div class="line">            Exceptions.throwIfFatal(e);</div><div class="line">                    <span class="keyword">if</span> (subscriber.isUnsubscribed()) &#123;</div><div class="line">                RxJavaPluginUtils.handleException(hook.onSubscribeError(e));</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="comment">// if an unhandled error occurs executing the onSubscribe we will propagate it</span></div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    subscriber.onError(hook.onSubscribeError(e));</div><div class="line">                &#125; <span class="keyword">catch</span> (Throwable e2) &#123;</div><div class="line">                    Exceptions.throwIfFatal(e2);</div><div class="line">                   hook.onSubscribeError(r);</div><div class="line">                    <span class="keyword">throw</span> r;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> Subscriptions.unsubscribed();</div><div class="line">        &#125;</div></pre></td></tr></table></figure>
-<p>Observable create例子</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">Observable&lt;Boolean&gt; mObservable  = Observable</div><div class="line">    .create(<span class="keyword">new</span> Observable.OnSubscribe&lt;Boolean&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">(Subscriber&lt;? <span class="keyword">super</span> Boolean&gt; subscriber)</span> </span>&#123;</div><div class="line">                subscriber.onNext(writeBytes(data));</div><div class="line">                subscriber.onCompleted();</div><div class="line">            &#125;</div><div class="line">        &#125;)</div><div class="line">        .subscribeOn(Schedulers.io())</div><div class="line">        .observeOn(AndroidSchedulers.mainThread());</div><div class="line"></div><div class="line">mObservable.subscribe(<span class="keyword">new</span> Subscriber&lt;Boolean&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompleted</span><span class="params">()</span> </span>&#123;</div><div class="line">                Logger.e(<span class="string">"onCompleted"</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line">                 Logger.e(<span class="string">"onError"</span>);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(Boolean aBoolean)</span> </span>&#123;</div><div class="line">                 Logger.e(<span class="string">"onNext"</span> + aBoolean);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
-<p>大概执行思路：调用Observable.crate()创建一个观察者，同时创建一个OnSubscribe作为该方法的入参；用subscribe()来订阅我们自己创建的观察者Subscriber。调用subscribe()方法后,就会触发执行OnSubscribe.call()，然后在call方法调用观察者subscriber里的三个方法。</p>
-<p>介绍下FlatMap和Map变换的区别</p>
-<blockquote>
-<p>Map变换 只是对数据类型的转换,传入参数返回一个对象</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">.map(new Func1&lt;String, Boolean&gt;() &#123;</div><div class="line">                    @Override</div><div class="line">                    public Boolean call(String string) &#123;</div><div class="line">                    //做数据对比</div><div class="line">                        return true;</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div></pre></td></tr></table></figure>
-<p>FlatMap变换 创建的是一个新Observable对象，并激活和发送到同一个Observable，这个 Observable 负责将这些事件统一交给 Subscriber 的回调当中去。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">.flatMap(new Func1&lt;Boolean, Observable&lt;?&gt;&gt;() &#123;</div><div class="line">                    @Override</div><div class="line">                    public Observable&lt;?&gt; call(Boolean aBoolean) &#123;</div><div class="line">                        return Observable.timer(3000, TimeUnit.MILLISECONDS);</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div></pre></td></tr></table></figure>
-</blockquote>
-<p>应用场景：<br>    当RxJava与Retrofit结合使用的时候，FlatMap变换可以更好地应用到http请求的多次尝试 ，retryWhen变换中就可以应用;Map可以更好地对数据结果进行截取data…等等。<br>更多的操作符请移步官网：<a href="http://reactivex.io/documentation/operators.html" target="_blank" rel="external">http://reactivex.io/documentation/operators.html</a></p>
-<h6 id="学习Rxjava源码思路的建议"><a href="#学习Rxjava源码思路的建议" class="headerlink" title="学习Rxjava源码思路的建议"></a>学习Rxjava源码思路的建议</h6><blockquote>
-<h6 id="注重源码阅读"><a href="#注重源码阅读" class="headerlink" title="注重源码阅读"></a>注重源码阅读</h6><p>Java 观察者模式：<a href="http://www.cnblogs.com/java-my-life/archive/2012/05/16/2502279.html" target="_blank" rel="external">http://www.cnblogs.com/java-my-life/archive/2012/05/16/2502279.html</a><br>大头鬼收集的：<a href="https://github.com/lzyzsd/awesome-rxjava" target="_blank" rel="external">https://github.com/lzyzsd/awesome-rxjava</a><br>RxAndroid Tutorial学习网站：<a href="https://www.raywenderlich.com/141980/rxandroid-tutorial?utm_source=Android+Weekly&amp;utm_campaign=7128946b09-androidweekly-240&amp;utm_medium=email&amp;utm_term=0_4eb677ad19-7128946b09-338017429" target="_blank" rel="external">https://www.raywenderlich.com/141980/rxandroid-tutorial?utm_source=Android+Weekly&amp;utm_campaign=7128946b09-androidweekly-240&amp;utm_medium=email&amp;utm_term=0_4eb677ad19-7128946b09-338017429</a><br>RxJava 官方翻译文档：<a href="https://mcxiaoke.gitbooks.io/rxdocs/content/Operators.html" target="_blank" rel="external">https://mcxiaoke.gitbooks.io/rxdocs/content/Operators.html</a><br>Rxjava 简书：<a href="http://www.jianshu.com/p/059907d3e82b" target="_blank" rel="external">http://www.jianshu.com/p/059907d3e82b</a><br>RxJava源码分析：<a href="https://segmentfault.com/a/1190000008903789" target="_blank" rel="external">https://segmentfault.com/a/1190000008903789</a><br>RxJava执行流程分析：<a href="https://zhuanlan.zhihu.com/p/22338235" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/22338235</a><br>Rxjava2：<a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2016/0907/6604.html" target="_blank" rel="external">http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2016/0907/6604.html</a><br>Rxjava2.0和Rxjava1.0的区别：<a href="https://github.com/ReactiveX/RxJava/wiki/What%27s-different-in-2.0" target="_blank" rel="external">https://github.com/ReactiveX/RxJava/wiki/What%27s-different-in-2.0</a><br>GitHub - google/agera: Reactive Programming for Android： <a href="https://github.com/google/agera" target="_blank" rel="external">https://github.com/google/agera</a> —反应式编程</p>
-</blockquote>
+          Rxjava简单入门
 
-          
+Rxjava 的含义
+Rxjava的外层思路
+一些简单的Rxjava源码分析
+学习Rxjava源码思路的建议
+
+Rxjava 的含义在Rxjava GitHub的解释：RxJava is a Java VM implementation of Reactive Extensi
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/04/15/RxJava的简单入门/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -573,31 +537,21 @@
       
         
           
-            <p><em>Android Studio 的一些插件</em></p>
-<p><strong>整理一下常用的 Plugins：</strong></p>
-<ol>
-<li><a href="https://github.com/pbreault/adb-idea" target="_blank" rel="external">ADB Idea</a>： 支持面板操作ADB.</li>
-<li><a href="https://github.com/takahirom/android-postfix-plugin" target="_blank" rel="external">Android Postfix Completion</a>： 根据后缀快速完成代码.</li>
-<li><a href="https://github.com/jonstaff/AndroidAccessors" target="_blank" rel="external">AndroidAccessors</a>：生成get和set方法的插件.</li>
-<li><a href="https://github.com/Vektah/CodeGlance" target="_blank" rel="external">CodeGlance</a> : 快速定位代码，右侧定位视图.</li>
-<li><a href="https://github.com/avast/android-butterknife-zelezny" target="_blank" rel="external">Android ButterKnife Zelezny</a>: ButterKnife从选中的xml快速注入.</li>
-<li><a href="https://www.codota.com/" target="_blank" rel="external">Codoa</a>: 搜索最好的Android代码或源码</li>
-<li><a href="https://github.com/zzz40500/GsonFormat" target="_blank" rel="external">GsonFormat</a>: 按照Gson的格式将json文件快速生成对应的实体类.</li>
-<li><a href="https://github.com/mcharmas/android-parcelable-intellij-plugin" target="_blank" rel="external">ParcelableGenerator</a>: 实现快速生成Parcelable接口代码.</li>
-<li><a href="https://github.com/constantine-ivanov/strings-xml-tools" target="_blank" rel="external">strings xml tools</a>: 字符串国际化的插件</li>
-<li><a href="https://github.com/mcxiaoke/gradle-packer-plugin" target="_blank" rel="external">gradle packer pligin</a>: 多渠道打包插件</li>
-</ol>
-<p><strong>参考资料或链接如下：</strong></p>
-<ol>
-<li><a href="https://www.zhihu.com/question/28026027" target="_blank" rel="external">Android 插件推荐</a></li>
-</ol>
-<p><strong>推荐以下Android Libraries</strong></p>
-<ol>
-<li><a href="https://github.com/wasabeef/awesome-android-libraries/blob/master/README.md" target="_blank" rel="external">awesome-android-libraries</a></li>
-<li><a href="https://hujiaweibujidao.github.io/blog/2015/12/05/art-of-android-development-reading-notes/" target="_blank" rel="external">Android 开发艺术探索笔记</a></li>
-</ol>
+          Android Studio 的一些插件
+整理一下常用的 Plugins：
 
-          
+ADB Idea： 支持面板操作ADB.
+Android Postfix Completion： 根据后缀快速完成代码.
+AndroidAccessors：生成get和set方法的插件.
+CodeGlance : 快速定位
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/01/20/AndroidPlugins/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -737,14 +691,19 @@
       
         
           
-            <h3 id="Android-tips"><a href="#Android-tips" class="headerlink" title="Android tips"></a>Android tips</h3><p>解析json数据的第三方依赖库 ： Google的<a href="https://github.com/google/gson/blob/master/UserGuide.md" target="_blank" rel="external">Gson</a> 或者 阿里的<a href="https://github.com/Alibaba/fastjson/wiki/%E9%A6%96%E9%A1%B5" target="_blank" rel="external">fastjson</a> </p>
-<p>网络框架 Retrofit和Rxjava结合，再有Databinding数据结合,<a href="https://github.com/square" target="_blank" rel="external">Square</a></p>
-<p>图片加载方式，最佳选择<a href="https://github.com/facebook" target="_blank" rel="external">Fresco</a></p>
-<p>View id的注解 <a href="https://github.com/JakeWharton/butterknife" target="_blank" rel="external">butterknife</a></p>
-<p><a href="https://github.com/JakeWharton" target="_blank" rel="external">JakeWharton</a>里的RxBinding也不错</p>
-<p>依赖谷歌自身的design就可以慢慢使用Material design 实现风格 </p>
-
-          
+          Android tips解析json数据的第三方依赖库 ： Google的Gson 或者 阿里的fastjson 
+网络框架 Retrofit和Rxjava结合，再有Databinding数据结合,Square
+图片加载方式，最佳选择Fresco
+View id的注解 butterknife
+Jak
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/12/10/tips/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -884,21 +843,16 @@
       
         
           
-            <p>转载：<a href="http://www.xiesanwen.com/html/?52452.html" target="_blank" rel="external">http://www.xiesanwen.com/html/?52452.html</a></p>
-<p>题记：对于一个人来说，青春是灿烂的，也是短暂的。生活中的许多事，我们可以拒绝，但是，如果你热爱生命，请不要拒绝青春。<br>青春是早春的萌芽，栖着露珠镶着铅华;青春是含苞待放的花朵，透着希望诱着未来;青春是心头一片美丽的云彩，轻轻的她走了，正如你轻轻的来;你挥一挥衣袖，是否带走了这片云彩?</p>
-<p>记得小时，我们坐在屋顶上，天真地指着天上的星星问爸爸：“爸爸，星星有多高呀?你能帮我把它们摘下来嘛?”或者不解地对着天上的月亮问妈妈：“妈妈，天上那挂着的圆盘怎么会时缺时圆呢?是不是有人在上面不停的变换着形状呢?”……儿时的天真，少年的烂漫，青春的彷徨。曾经清澈的眼神，稚气的心灵淡淡的都早已模糊在远出的时光里。而岁月的这只“老狐狸”却一直都在有你的季节里“坑来骗去”，“骗”走了你的美好时光，也“坑”走了你自诩不堪的回忆。</p>
-<p>流沙滑落指间，青春就这样恬淡流逝，而我们也在时光的狭缝里渐渐的长大。那么，你是否可愿把最好的自己留在了最好的时光里?记得，别林斯基曾说过：“青春在人的一生中只有一次，而青春时期比任何时期都要美好。”既然青春可以是一朵芬芳的花，可以是一滴清心的雨，花吐生香，雨润芬芳。那我们不妨潜心问一下自己：我的青春可曾真正的来过，我的雨露青春可曾姹紫嫣红千娇百媚过?</p>
-<p>著名诗人泰戈尔说过：“只有流过血的手指才能弹出世间绝响，只有经受过地狱般的磨难，才拥有塑造天堂的力量。”虽然花样青春繁华了四季，婀娜了我们的人生，但生命的底蕴却直接告诉我们，那其实就是我们为自己而活。远处的是风景，近处的是人生。也许心有沉香，何惧浮世。不是每轮艳阳都暖人，不是每片乌云都下雨。那不如风轻的日子里，就浅舞一季美丽，岁月缝花吧。因为只有那些能把握青春，能把握青春梦想的人才能够在青春中真正的熔炼生命，提炼岁月。况且，“没有一代人的青春是容易的。”俗语说：山不过来，人就过去。有人想在山顶描绘朝阳的美丽，那他肯定起的很早;有人想在海边扑捉晚霞的灵动，那他肯定备的很足。而如果我们想从最深的记忆里觅到一个完全只属于我们自己的明天，那么，我们唯有用心努力拼搏。青春，雨露青春，也许青春就像那一条奔流不息的江河，只要我们肯努力，青春她都会步步生莲，洗尽铅华，丰润了底蕴，沉淀出饱满。且不像三毛说的那样“我来不及认真地年轻，待明白过来时，只能选择认真的老去。”</p>
-<p>你瞧，青春的路上有多美，春花秋月相随，朝霞晚露相迎。从花开到花落，从憧憬到现实，青春一直用她的雨露柔情谱写着一首首充满活力激情的歌谣。只可惜，风儿可以穿越云层，俯瞰每一个云层下的精灵。而我们却只有一双脚丫，那我们能走多远，又能遇见多少个有缘人呢?“看人长处，帮人难处，记人好处。”成熟的人不问过去，聪明的人不问现在，豁达的人不问未来，因为他们晓得懂得他们的每一天每一秒：梦想不会逃走，会逃跑的永远都是自己。所以，不管当下的我们有没有人爱，我们也要努力去做一个可爱的人。不埋怨谁，不嘲笑谁，也不羡慕谁，阳光下灿烂，风雨中奔跑，做自己的梦，走自己的路。就像那些生长在水泥地上的花朵，存活在污水中的小鱼，这薄凉的人世间，又能给他们什么呢?只不过，也许她们懂得：烟花开了，她就怒放;烟花散了，她就歌唱。她的青春“轻轻的走了，正如她轻轻的来;她挥一挥衣袖，带走了这片云彩。”</p>
-<p>龙应台在【目送】中说到：“人生由淡淡的悲伤和淡淡的幸福组成，在小小的期待、偶尔的兴奋和沉默的失望中度过每一天，然后带着一种想说却又说不出来的‘懂’，做最后的转身离开。”也许，曲终人散，只是瞬间;似水流年，只是刹那。黯然的青春之路重在意义，那不妨就让青春渗透心灵，透彻灵魂。让青春雨露，雨露青春活在我们身边，活在我们生活的每一天。毕竟“心若不动，风又如何;你若不伤，岁月无恙。”</p>
-<p>那路在何方?路就在脚下，那不妨让我们走好青春每一步，在青春中熔炼自己，提升自己，将自己的雨露青春好好的利用，好好的使那些好似被搁浅的时光都能在岁月的缝隙里淡淡的发出微弱的灵光，溢出诱人的芬芳。或许生命她本身就是一泓泉水，只有勇于挑战自我的人才能品味出其中的甘冽;生命她本身就是一部史书，只有勇于挑战自我的人才能体味出其中的浩荡;生命她本身就像一首优美的歌谣，只有勇于挑战自我的人才能谱写出优美的旋律。</p>
-<p>“贫不足休，可羞贫而无志。”在物质泛起的年代，不妨多读几卷好书，让心沉淀下来，也许活着不是为了成功，但成功就是要有质量的活着。人生没有什么如果，命运也根本没什么彩排。我们唯有相信自己，相信信念，坚定目标，勇敢的迈出每一步，那么即使我们受了伤，或者我们正在征程中。那么我们也可以照样笑着说：青春，轻轻的她走了，正如我轻轻的来;我挥一挥衣袖，正试着带走这一片云彩。</p>
-<p>所以，无论我们走到哪里，无论天气有多糟，记着出门一定要带上自己的微笑自己的阳光。因为人生的真谛无非就是在痛苦中一次又一次的蜕变，风雨后的彩虹那才是最美的生命底蕴。那不妨带上自己的阳光，配上澄澈透明、豁达开朗的心态，在你雨露青春的日子里攒足你一生的阳光，让心灵安然栖居扬帆起航每一天。</p>
-<p>瞧，我们此刻不是正在花田里散步吗?不是正在青春的道路上越走越长吗?积极态度的人就像是太阳，走到哪里哪里亮。成就了别人，也成就了自己美好的人生。</p>
-<p>在这春暖花开的季节，我们就是春天，我们就是朝气蓬勃的绿色，我们就是那树尖上钻出的点点嫩芽，拼命滋长，我们就是那含苞待放的花蕾，正刻刻时时等待怒放，瓣瓣滴翠流香……</p>
-<p>青春雨露，雨露青春。</p>
-
-          
+          转载：http://www.xiesanwen.com/html/?52452.html
+题记：对于一个人来说，青春是灿烂的，也是短暂的。生活中的许多事，我们可以拒绝，但是，如果你热爱生命，请不要拒绝青春。青春是早春的萌芽，栖着露珠镶着铅华;青春是含苞待放的花朵，透着希望诱着未来;青春是心头一片美丽
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/12/09/转载《雨露青春》/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1038,126 +992,48 @@
       
         
           
-            <p>####NFC的一些理解</p>
-<p><a href="http://baike.baidu.com/item/nfc/5684" target="_blank" rel="external">百科初步讲解</a></p>
-<p><a href="https://zh.wikipedia.org/wiki/%E8%BF%91%E5%A0%B4%E9%80%9A%E8%A8%8A" target="_blank" rel="external">维基百科</a></p>
-<p>NFC的通信原理</p>
-<ul>
-<li>工作频率为13.56MHZ</li>
-<li>读取模式有被动和主动 </li>
-</ul>
-<p>具体表现和对比其他短距离通信，如以下表格：</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>NFC</th>
-<th>蓝牙</th>
-<th>红外</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>网络类型</td>
-<td>点对点</td>
-<td>单点对多点</td>
-<td>点对点</td>
-</tr>
-<tr>
-<td>使用距离</td>
-<td>≤0.1m</td>
-<td>≤10m</td>
-<td>≤1m</td>
-</tr>
-<tr>
-<td>建立时间</td>
-<td>&lt; 0.1s</td>
-<td>6s</td>
-<td>0.5s</td>
-</tr>
-<tr>
-<td>安全性</td>
-<td>具备， 硬件实现</td>
-<td>具备，软件实现</td>
-<td>不具备， 使用IRFM 时除外</td>
-</tr>
-<tr>
-<td>通信模式</td>
-<td>主动-主动/被动</td>
-<td>主动－主动</td>
-<td>主动－主动</td>
-</tr>
-<tr>
-<td>成本</td>
-<td>低</td>
-<td>中</td>
-<td>低</td>
-</tr>
-</tbody>
-</table>
-<p>关于NFC在Android上的表现</p>
-<ul>
-<li>首先手机必须具有NFC的功能</li>
-<li>再次应用和相关页面要进行相关的配置</li>
-</ul>
-<p>配置体现：</p>
-<pre><code> &lt;!-- NFC权限声明 --&gt;
-&lt;uses-permission android:name=&quot;android.permission.NFC&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.VIBRATE&quot;/&gt;
-&lt;uses-permission android:name=&quot;android.permission.INTERNET&quot;/&gt;
+          ####NFC的一些理解
+百科初步讲解
+维基百科
+NFC的通信原理
 
-&lt;uses-feature
-    android:name=&quot;android.hardware.nfc&quot;
-    android:required=&quot;true&quot;/&gt;
-</code></pre><p>应用的页面 ：intent-filter 启动模式为：android:launchMode=”singleTop”</p>
-<pre><code>&lt;intent-filter&gt;
-    &lt;action android:name=&quot;android.nfc.action.TAG_DISCOVERED&quot;/&gt;
-    &lt;action android:name=&quot;android.nfc.action.NDEF_DISCOVERED&quot;/&gt;
-&lt;/intent-filter&gt;
-</code></pre><p>主要浅显分析下M1类型的读写:</p>
-<ul>
-<li>全名为：MifareClassic的射频卡</li>
-<li>1K 16个扇区，每个扇区有4个块，每个块有16个字节数据</li>
-<li>通过文档查询NFCA协议兼容MifareClassic协议</li>
-</ul>
-<p>Android 读取M1大概的方法</p>
-<pre><code>//取出封装在intent中的TAG
-Tag    tagIntent = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-boolean auth = false;
-//读取TAG Tag类型代表着协议类型
-MifareClassic mfc = MifareClassic.get(tagIntent);
-try {
-        //Authenticate a sector with key A.
-        auth = mfc.authenticateSectorWithKeyA(&quot;Sector 扇区 &quot;,&quot;密码&quot;);
-        if (auth) {
-                byte[] data = mfc.readBlock(“块数”);
-            } else {
-            //验证失败                
-          }
-            mfc.close();
-        } catch (Exception e) {
-        e.printStackTrace();
-        }
-</code></pre><p>Android 写入M1的大概方法</p>
-<pre><code>try {
-        Tag tagFromIntent = mIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-        MifareClassic mfc = MifareClassic.get(tagFromIntent);
-        mfc.connect();
-        boolean auth = false;        
-         auth = mfc.authenticateSectorWithKeyA(1,des);
-         if (auth) {
-                mfc.writeBlock(&quot;块数&quot;, byte[] data);// 必须为16字节不够自己补0
-                 mfc.close();
-            } else {
-            }
-        } catch (IOException e1) {
-            e1.printStackTrace();
-  }
-</code></pre><p>在于获取NfcAdapter的EXTRA_TAG 拿取到NFC的协议类型，才能进行下一步的读取。<a href="https://developer.android.com/reference/android/nfc/tech/MifareClassic.html" target="_blank" rel="external">MifareClassic</a></p>
+工作频率为13.56MHZ
+读取模式有被动和主动 
 
-          
+具体表现和对比其他短距离通信，如以下表格：
+
+
+
+
+NFC
+蓝牙
+红外
+
+
+
+
+网络类型
+点对点
+单点对多点
+点对点
+
+
+使用距离
+≤0.1m
+≤10m
+≤1m
+
+
+建立时间
+
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/12/08/针对M1类型的nfc读取扇区初步了解/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1297,21 +1173,18 @@ try {
       
         
           
-            <p><a href="http://developer.51cto.com/art/200909/151932.htm" target="_blank" rel="external">探讨接口编程之意义与优势</a></p>
-<p>接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。</p>
-<p>在项目中的意义：</p>
-<p>在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都需要修改，影响系统本身的稳定性。而且为了将改写代码带来的影响最小，我们不得不屈服当前的系统状况来完成设计，代码质量和稳定性更低。当这种情况积累到一定程度时，系统就会出现不可预计的错误，代码凌乱，不易读懂，后接手的人无法读懂代码，系统的维护工作越来越重，最终可能导致项目失败。</p>
-<p>接口在项目就是一个业务逻辑，面向接口编程就是先把客户的业务提取出来，作为接口。业务具体实现通过该接口的实现类来完成。当客户需求变化时，只需编写该业务逻辑的新的实现类，通过更改配置文件(例如Spring框架)中该接口的实现类就可以完成需求，不需要改写现有代码，减少对系统的影响。</p>
-<p>采用基于接口编程的项目，业务逻辑清晰，代码易懂，方便扩展，可维护性强。即使更换一批人员，新来的人依然可以快速上手。对于公司来说，意义更大。</p>
-<p>在Java中的意义：</p>
-<p>Java本身也是一个不断完善的语言，他也在频繁的改动他的系统API来完善，他的API是一个庞大的体系，互相关联，如果不采用接口，而都是用实现类的话，那么API的改动就会给整个体系带来不稳定。而且如果改动API，那么就会有大量采用旧API的项目因无法正常运行，会损失大量客户。换句话说，JDK已经发布的API是一种承诺，一经发布就不能更改，即使原来API存在各种各样的问题（例如java.util.Properties类就是一个失败的例子）也必须保留，于是在Java里就出现了不建议使用的方法，但JDK依然提供该方法。而且Java语言本身是一个跨平台的语言，为了满足在各个平台下运行，就必须把各种操作做成接口，在编写各个平台下的实现类。</p>
-<p>设计模式的体现：</p>
-<p>在设计模式的原则里的开闭原则，其实就是要使用接口来实现对扩展开放，对修改关闭。在设计模式的其他原则里也有关于基于接口编程的原则，即依赖倒转的设计原则(DIP)—-高层模块不应该依赖于底层模块。二者都应该依赖于抽象；抽象不应该依赖于细节，细节应该依赖于抽象(注：来自《敏捷软件开发–原则、模式与实践》Robert C.Martin著)。在使用面向接口的编程过程中，将具体逻辑与实现分开，减少了各个类之间的相互依赖，当各个类变化时，不需要对已经编写的系统进行改动，添加新的实现类就可以了，不在担心新改动的类对系统的其他模块造成影响。</p>
-<p>编程也是一门艺术，在C语言中灵活的使用指针是一门艺术，在面对对象的程序中，灵活的使用接口也是一门艺术。现在项目中，功能越来越复杂，只设计了完美的类，对于整个系统来说没有多大意义，现在的项目更注重各个功能模块的整合及可维护性，接口的设计就显得更为重要了。程序设计不再是设计类的具体实现，而是从整个项目出发，设计出可扩展性强的接口。当你发现越来越灵活的使用接口时，那么你就从程序员升级为架构师了。可惜我现在依然是一名程序员，正在像架构师努力。</p>
-<p>相关阅读：</p>
-<p><a href="http://developer.51cto.com/art/200906/130540.htm" target="_blank" rel="external">java接口学习笔记</a></p>
-
-          
+          探讨接口编程之意义与优势
+接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。
+在项目中的意义：
+在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/12/01/接口摘录/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1451,13 +1324,16 @@ try {
       
         
           
-            <p>一、实体类bean继承BaseObservable,获得了通知UI的能力。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">private  class User extends BaseObservable &#123;</div><div class="line">   private String firstName;</div><div class="line">   private String lastName;</div><div class="line">   @Bindable</div><div class="line">   public String getFirstName() &#123;</div><div class="line">       return this.firstName;</div><div class="line">   &#125;</div><div class="line">   @Bindable</div><div class="line">   public String getFirstName() &#123;</div><div class="line">       return this.lastName;</div><div class="line">   &#125;</div><div class="line">   public void setFirstName(String firstName) &#123;</div><div class="line">       this.firstName = firstName;</div><div class="line">       notifyPropertyChanged(BR.firstName);</div><div class="line">   &#125;</div><div class="line">   public void setLastName(String lastName) &#123;</div><div class="line">       this.lastName = lastName;</div><div class="line">       notifyPropertyChanged(BR.lastName);</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>Bindable标签在编译时会自动生成BR类，当Model中数据发生改变的时候，通过Set方法调用notifyPropertyChanged的，通知对象的某个字段数据已经更新。</p>
-<p>在UI里，通过实体化的对象添加BaseObservable的addOnPropertyChangedCallBack方法：<br>Adds a callback to listen for changes to the Observable.</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">user.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() &#123;</div><div class="line">            @Override</div><div class="line">            public void onPropertyChanged(final Observable observable, final int i) &#123;</div><div class="line">            //TODO</div><div class="line">                runOnUiThread(new Runnable() &#123;</div><div class="line">                    @Override</div><div class="line">                    public void run() &#123;</div><div class="line">                        switch (i) &#123;</div><div class="line">                            case BR.firstName: </div><div class="line">                           		 break;</div><div class="line">                            case BR.lastName:                                                         								 </div><div class="line">                            	 break;</div><div class="line">                            default:</div><div class="line">                                break;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
-
-          
+          一、实体类bean继承BaseObservable,获得了通知UI的能力。
+1234567891011121314151617181920private  class User extends BaseObservable &#123;   private String firstName;   p
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/12/01/databinding/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1597,24 +1473,17 @@ try {
       
         
           
-            <p>&emsp;&emsp;hexo 在mac和win上的搭建,都是大同小异</p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>&emsp;&emsp;之前在win下搭建过一次，其中也遇到了一些问题，但不得不承认，都是些误操作导致的。因为有时对新鲜事物的逻辑性，可能在此上缺乏一定的认知。</p>
-<h3 id="一、搭建的准备工作"><a href="#一、搭建的准备工作" class="headerlink" title="一、搭建的准备工作"></a>一、搭建的准备工作</h3><p>&emsp;&emsp; mac 的Xcode好像自带git,所以可以免去安装git这一项<br>&emsp;&emsp; <em> 安装所需的软件<br>&emsp;&emsp; </em> 会一点git命令<br>&emsp;&emsp; <em> 会一点hexo命令<br>&emsp;&emsp; </em> 其他的自己领悟</p>
-<h4 id="1-软件安装"><a href="#1-软件安装" class="headerlink" title="1.软件安装"></a>1.软件安装</h4><p> &emsp;&emsp; 安装<a href="https://nodejs.org/en/" target="_blank" rel="external">Node.js</a><br> &emsp;&emsp; 如<a href="https://hexo.io/" target="_blank" rel="external">hexo</a>安装都可以用mac终端,使用npm安装<a href="https://hexo.io/zh-cn/docs/" target="_blank" rel="external">hexo</a>,如下：<br> <figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install -g hexo-cli</div></pre></td></tr></table></figure></p>
-<h4 id="2-git的一些命令"><a href="#2-git的一些命令" class="headerlink" title="2.git的一些命令"></a>2.git的一些命令</h4><p><a href="http://blog.csdn.net/ithomer/article/details/7529022" target="_blank" rel="external">git的一些相关命令</a><br>列如，一些简单的:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git clone  <span class="string">"文件的地址"</span></div></pre></td></tr></table></figure></p>
-<h4 id="3-hexo的一些命令"><a href="#3-hexo的一些命令" class="headerlink" title="3.hexo的一些命令"></a>3.<a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">hexo</a>的一些命令</h4><p>&emsp;&emsp;[hexo 的一些常见指令]{<a href="https://hexo.io/zh-cn/docs/commands.html}" target="_blank" rel="external">https://hexo.io/zh-cn/docs/commands.html}</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ hexo clean</div><div class="line">$ hexo g</div><div class="line">$ hexo s</div><div class="line">$ hexo d</div><div class="line">$ hexo new [layout] &lt;title&gt;  #创建新的文章</div></pre></td></tr></table></figure></p>
-<h3 id="二、进行时"><a href="#二、进行时" class="headerlink" title="二、进行时"></a>二、进行时</h3><p>创建github仓库：Your_github_name + github.io,一下图片示例：</p>
-<p><img src="/images/create_github_resp.png" alt="image"></p>
-<p>在桌面创建意见文件夹，比如名称：gitHexo; 此时打开mac的终端 cd 到该目录下，mac下是可以直接把文件夹拖进终端显示出路径的<br>在该文件下终端执行一下命令，部署hexo:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo init</div></pre></td></tr></table></figure></p>
-<p>再次执行一下命令，生成本地静态网页,访问localhost:4000，即可查看本地网页<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ hexo g</div><div class="line">$ hexo s</div></pre></td></tr></table></figure></p>
-<p>上传到github上，修改配置文件 ——config.yml文件，<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"># Deployment</div><div class="line">## Docs: https://hexo.io/docs/deployment.html</div><div class="line">deploy:</div><div class="line">type: git</div><div class="line">repository: https://github.com/cjeyouni/cjeyouni.github.io.git</div><div class="line">branch: master</div></pre></td></tr></table></figure></p>
-<p>提交到github上<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo d</div></pre></td></tr></table></figure></p>
-<p>更换主题配置，直接git clone喜欢的主题,hexo[主题]{<a href="https://hexo.io/themes/}" target="_blank" rel="external">https://hexo.io/themes/}</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git clone 主题仓库地址 themes/主题名称</div></pre></td></tr></table></figure></p>
-<p>克隆完主题后，修改配置文件，要提交到github上去<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ git clone 主题仓库地址 themes/主题名称</div></pre></td></tr></table></figure></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"># Extensions</div><div class="line">## Plugins: https://hexo.io/plugins/</div><div class="line">## Themes: https://hexo.io/themes/</div><div class="line">theme: maupassant</div></pre></td></tr></table></figure>
-<p>上传的时候可能会提示输入github账户以及密码，到这如果顺利的话，访问Your_github_name + github.io，会看到自己的网页<br>如有其它的问题，关于SSH的，或者其它可以参照一下博客：<br><a href="http://yuweiguocn.github.io/2016/02/20/mac-hexo-github-blog-tech/" target="_blank" rel="external">http://yuweiguocn.github.io/2016/02/20/mac-hexo-github-blog-tech/</a><br><a href="http://www.jianshu.com/p/05289a4bc8b2" target="_blank" rel="external">http://www.jianshu.com/p/05289a4bc8b2</a></p>
-
-          
+          &emsp;&emsp;hexo 在mac和win上的搭建,都是大同小异
+前言&emsp;&emsp;之前在win下搭建过一次，其中也遇到了一些问题，但不得不承认，都是些误操作导致的。因为有时对新鲜事物的逻辑性，可能在此上缺乏一定的认知。
+一、搭建的准备工作&emsp;&emsp; mac 的Xco
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/02/hexo的搭建/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1754,35 +1623,19 @@ try {
       
         
           
-            <p>在梦的世界，语言为最美的艺术。</p>
-<h2 id="以下非我所写"><a href="#以下非我所写" class="headerlink" title="以下非我所写"></a>以下非我所写</h2><h3 id="有意境的扯淡"><a href="#有意境的扯淡" class="headerlink" title="有意境的扯淡"></a>有意境的扯淡</h3><pre><code>1、寂寞的人总是记住生命中出现的每一个人，正如我总是意犹未尽地想起你！
-</code></pre><p>　　2、我总是这样凝望那些日升月沉无家可归的忧伤。</p>
-<p>　　3、一只野兽受了伤，它可以自己跑到一个山洞躲起来，然后自己舔舔伤口，自己坚持，可是一旦被嘘寒问暖，它就受不了。</p>
-<p>　　4、命里有时终需有命里无时莫强求。</p>
-<p>　　5、遗忘是我们不可更改的宿命所有的一切都像是没有对齐的图纸从前的一切回不到过去就这样慢慢延伸一点一点的错开来也许错开了的东西我们真的应该遗忘了。在人们习惯了听假话的环境中，有时说真话就像在说笑话。</p>
-<p>　　6、幸福的时刻，一半是和你在一起，一半是在梦里；痛苦的时刻，一半是分离，一半是默默地想着你。</p>
-<p>　　7、记忆想是倒在掌心的水，不论你摊开还是紧握，终究还是会从指缝中一滴一滴流淌干净。</p>
-<p>　　8、一个人总要走陌生的路，看陌生的风景，听陌生的歌，然后在某个不经意的瞬间，你会发现，原本费尽心机想要忘记的事情真的就这么忘记了。</p>
-<p>　　9、记忆想腐烂的叶子，那些清新那些嫩绿早已埋葬在时间刻度的前段，惟有铺天盖地的腐烂气味留在时间刻度的尾部。</p>
-<p>　　10、要理想不要幻想，要激情不要矫情。凡事知足常乐。</p>
-<p>　　11、我们把在黑暗中跳舞的心脏叫做月亮。</p>
-<p>　　12、那些以前说着永不分离的人，早已经散落在天涯了。</p>
-<p>　　13、一段不被接受的爱情，需要的不是伤心，而是时间，一段可以用来遗忘的时间。一颗被深深伤了的心，需要的不是同情，而是明白。因为爱过，所以慈悲；因为懂得，所以宽容。幸福不是终点幸福是努力走过的道路，路上遇到的爱与感动，路上遇到的风雨、挫折、痛苦一起构成了这条路。也是因为有了它们，我们才明白了幸福的真谛。</p>
-<p>　　14、有些人会一直刻在记忆里的，即使忘记了他的声音，忘记了他的笑容，忘记了他的脸，但是每当想起他时的那种感受，是永远都不会改变的。</p>
-<p>　　15、你笑一次，我就可以高兴好几天；可看你哭一次，我就难过了好几年。</p>
-<p>　　16、我们放荡的青春还可以挥霍多久。</p>
-<p>　　17、一个今天抵得上两个明天。撕一张日历，很简单，把握住一天，却不容易。相信别人，放弃自己，这是许多人失败人生的开始！在最艰难的时刻，更要相信自己手中握有最好的猎枪。</p>
-<p>　　18、别让深爱变成一种痛如果你不爱一个人，请放手，好让别人有机会爱她。如果你爱的人放弃了你，请放开自己，好让自己有机会爱别人。爱一个人不一定要拥有，但拥有一个人就一定要好好的去爱他。不是每一次努力都会有收获，但是，每一次收获都必须努力，这是一个不公平的不可逆转的命题。</p>
-<p>　　19、我总是爱蹲下来看地上时光的痕迹，像一行一行蚂蚁穿越我的记忆。</p>
-<p>　　20、那些刻在椅背后的爱情　　会不会像水泥地上的花朵　开出地老天荒的　没有风的森林。</p>
-<p>　　21、有了你，我迷失了自我；失去你，我多么希望自己再度迷失。</p>
-<p>　　22、你给我的一滴泪，我看见你心中所有的海洋。</p>
-<p>　　23、寂寞的人总是会用心的记住他生命中出现过的每一个人，于是我总是意犹未尽地想起你在每个星光陨落的晚上一遍一遍数我的寂寞。</p>
-<p>　　24、哪里有真爱存在，哪里就有奇迹。</p>
-<p>　　25、一个人身边的位置只有那麽多，你能给的也只有那麽多，在这个狭小的圈子里，有些人要进来，就有一些人不得不离开。</p>
-<p>　　26、原来和文字沾上边的孩子从来都是不快乐的，他们的快乐象贪玩的小孩，游荡到天光，游荡到天光却还不肯回来。</p>
-
-          
+          在梦的世界，语言为最美的艺术。
+以下非我所写有意境的扯淡1、寂寞的人总是记住生命中出现的每一个人，正如我总是意犹未尽地想起你！
+　　2、我总是这样凝望那些日升月沉无家可归的忧伤。
+　　3、一只野兽受了伤，它可以自己跑到一个山洞躲起来，然后自己舔舔伤口，自己坚持，可是一旦被嘘寒问暖，它就受不了。
+　　
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/01/hello-world/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
