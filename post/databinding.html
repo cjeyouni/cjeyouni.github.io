@@ -66,7 +66,7 @@
 
 
 
-  <meta name="keywords" content="博客，文章," />
+  <meta name="keywords" content="databinding," />
 
 
 
@@ -77,25 +77,19 @@
 
 
 
-<meta name="description" content="探讨接口编程之意义与优势
-接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。
-在项目中的意义：
-在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都需要修改，影响系统本身的稳定性。而且为了将改写代码带来的影响最小，我们不得不屈服当前的系统状况来完成">
+<meta name="description" content="一、实体类bean继承BaseObservable,获得了通知UI的能力。
+1234567891011121314151617181920private  class User extends BaseObservable &amp;#123;   private String firstName;   private String lastName;   @Bindable   public Strin">
 <meta property="og:type" content="article">
-<meta property="og:title" content="接口摘录">
-<meta property="og:url" content="http://yoursite.com/2016/12/01/接口摘录/index.html">
+<meta property="og:title" content="databinding">
+<meta property="og:url" content="http://yoursite.com/post/databinding.html">
 <meta property="og:site_name" content="雨轩紫薰">
-<meta property="og:description" content="探讨接口编程之意义与优势
-接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。
-在项目中的意义：
-在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都需要修改，影响系统本身的稳定性。而且为了将改写代码带来的影响最小，我们不得不屈服当前的系统状况来完成">
-<meta property="og:updated_time" content="2017-11-15T15:43:54.000Z">
+<meta property="og:description" content="一、实体类bean继承BaseObservable,获得了通知UI的能力。
+1234567891011121314151617181920private  class User extends BaseObservable &amp;#123;   private String firstName;   private String lastName;   @Bindable   public Strin">
+<meta property="og:updated_time" content="2017-11-15T15:28:10.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="接口摘录">
-<meta name="twitter:description" content="探讨接口编程之意义与优势
-接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。
-在项目中的意义：
-在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都需要修改，影响系统本身的稳定性。而且为了将改写代码带来的影响最小，我们不得不屈服当前的系统状况来完成">
+<meta name="twitter:title" content="databinding">
+<meta name="twitter:description" content="一、实体类bean继承BaseObservable,获得了通知UI的能力。
+1234567891011121314151617181920private  class User extends BaseObservable &amp;#123;   private String firstName;   private String lastName;   @Bindable   public Strin">
 
 
 
@@ -125,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2016/12/01/接口摘录/"/>
+  <link rel="canonical" href="http://yoursite.com/post/databinding.html"/>
 
 
 
 
 
-  <title>接口摘录 | 雨轩紫薰</title>
+  <title>databinding | 雨轩紫薰</title>
   
 
 
@@ -187,9 +181,9 @@
       
         
         <li class="menu-item menu-item-home">
-          <a href="/home/" rel="section">
+          <a href="/" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             首页
           </a>
@@ -197,9 +191,9 @@
       
         
         <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
+          <a href="/about" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             关于
           </a>
@@ -207,9 +201,9 @@
       
         
         <li class="menu-item menu-item-tags">
-          <a href="/tags/" rel="section">
+          <a href="/tags" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             标签
           </a>
@@ -217,9 +211,9 @@
       
         
         <li class="menu-item menu-item-categories">
-          <a href="/categories/" rel="section">
+          <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             分类
           </a>
@@ -227,9 +221,9 @@
       
         
         <li class="menu-item menu-item-archives">
-          <a href="/archives/" rel="section">
+          <a href="/archives" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             归档
           </a>
@@ -237,9 +231,9 @@
       
         
         <li class="menu-item menu-item-schedule">
-          <a href="/schedule/" rel="section">
+          <a href="/schedule" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-calendar"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             日程表
           </a>
@@ -249,7 +243,7 @@
         <li class="menu-item menu-item-sitemap">
           <a href="/sitemap.xml" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             站点地图
           </a>
@@ -257,9 +251,9 @@
       
         
         <li class="menu-item menu-item-commonweal">
-          <a href="/404/" rel="section">
+          <a href="/404" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
             公益404
           </a>
@@ -298,7 +292,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/12/01/接口摘录/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/post/databinding.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="jeyou">
@@ -315,7 +309,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">接口摘录</h1>
+          <h1 class="post-title" itemprop="name headline">databinding</h1>
         
 
         <div class="post-meta">
@@ -327,7 +321,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-01T11:59:41+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-12-01T09:53:11+08:00">
                 2016-12-01
               </time>
             
@@ -350,8 +344,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/blog/" itemprop="url" rel="index">
-                    <span itemprop="name">blog</span>
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
                   </a>
                 </span>
 
@@ -387,19 +381,11 @@
       
 
       
-        <p><a href="http://developer.51cto.com/art/200909/151932.htm" target="_blank" rel="external">探讨接口编程之意义与优势</a></p>
-<p>接口编程相信大家都知道是怎么回事，下面主要对接口编程的好处进行一些总结。</p>
-<p>在项目中的意义：</p>
-<p>在传统的项目开发过程中，由于客户的需求经常变化，如果不采用面向接口编程，那么我们必须不停改写现有的业务代码。改写代码可能产生新的BUG，而且改写代码还会影响到调用该业务的类，可能全都需要修改，影响系统本身的稳定性。而且为了将改写代码带来的影响最小，我们不得不屈服当前的系统状况来完成设计，代码质量和稳定性更低。当这种情况积累到一定程度时，系统就会出现不可预计的错误，代码凌乱，不易读懂，后接手的人无法读懂代码，系统的维护工作越来越重，最终可能导致项目失败。</p>
-<p>接口在项目就是一个业务逻辑，面向接口编程就是先把客户的业务提取出来，作为接口。业务具体实现通过该接口的实现类来完成。当客户需求变化时，只需编写该业务逻辑的新的实现类，通过更改配置文件(例如Spring框架)中该接口的实现类就可以完成需求，不需要改写现有代码，减少对系统的影响。</p>
-<p>采用基于接口编程的项目，业务逻辑清晰，代码易懂，方便扩展，可维护性强。即使更换一批人员，新来的人依然可以快速上手。对于公司来说，意义更大。</p>
-<p>在Java中的意义：</p>
-<p>Java本身也是一个不断完善的语言，他也在频繁的改动他的系统API来完善，他的API是一个庞大的体系，互相关联，如果不采用接口，而都是用实现类的话，那么API的改动就会给整个体系带来不稳定。而且如果改动API，那么就会有大量采用旧API的项目因无法正常运行，会损失大量客户。换句话说，JDK已经发布的API是一种承诺，一经发布就不能更改，即使原来API存在各种各样的问题（例如java.util.Properties类就是一个失败的例子）也必须保留，于是在Java里就出现了不建议使用的方法，但JDK依然提供该方法。而且Java语言本身是一个跨平台的语言，为了满足在各个平台下运行，就必须把各种操作做成接口，在编写各个平台下的实现类。</p>
-<p>设计模式的体现：</p>
-<p>在设计模式的原则里的开闭原则，其实就是要使用接口来实现对扩展开放，对修改关闭。在设计模式的其他原则里也有关于基于接口编程的原则，即依赖倒转的设计原则(DIP)—-高层模块不应该依赖于底层模块。二者都应该依赖于抽象；抽象不应该依赖于细节，细节应该依赖于抽象(注：来自《敏捷软件开发–原则、模式与实践》Robert C.Martin著)。在使用面向接口的编程过程中，将具体逻辑与实现分开，减少了各个类之间的相互依赖，当各个类变化时，不需要对已经编写的系统进行改动，添加新的实现类就可以了，不在担心新改动的类对系统的其他模块造成影响。</p>
-<p>编程也是一门艺术，在C语言中灵活的使用指针是一门艺术，在面对对象的程序中，灵活的使用接口也是一门艺术。现在项目中，功能越来越复杂，只设计了完美的类，对于整个系统来说没有多大意义，现在的项目更注重各个功能模块的整合及可维护性，接口的设计就显得更为重要了。程序设计不再是设计类的具体实现，而是从整个项目出发，设计出可扩展性强的接口。当你发现越来越灵活的使用接口时，那么你就从程序员升级为架构师了。可惜我现在依然是一名程序员，正在像架构师努力。</p>
-<p>相关阅读：</p>
-<p><a href="http://developer.51cto.com/art/200906/130540.htm" target="_blank" rel="external">java接口学习笔记</a></p>
+        <p>一、实体类bean继承BaseObservable,获得了通知UI的能力。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">private  class User extends BaseObservable &#123;</div><div class="line">   private String firstName;</div><div class="line">   private String lastName;</div><div class="line">   @Bindable</div><div class="line">   public String getFirstName() &#123;</div><div class="line">       return this.firstName;</div><div class="line">   &#125;</div><div class="line">   @Bindable</div><div class="line">   public String getFirstName() &#123;</div><div class="line">       return this.lastName;</div><div class="line">   &#125;</div><div class="line">   public void setFirstName(String firstName) &#123;</div><div class="line">       this.firstName = firstName;</div><div class="line">       notifyPropertyChanged(BR.firstName);</div><div class="line">   &#125;</div><div class="line">   public void setLastName(String lastName) &#123;</div><div class="line">       this.lastName = lastName;</div><div class="line">       notifyPropertyChanged(BR.lastName);</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Bindable标签在编译时会自动生成BR类，当Model中数据发生改变的时候，通过Set方法调用notifyPropertyChanged的，通知对象的某个字段数据已经更新。</p>
+<p>在UI里，通过实体化的对象添加BaseObservable的addOnPropertyChangedCallBack方法：<br>Adds a callback to listen for changes to the Observable.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">user.addOnPropertyChangedCallback(new Observable.OnPropertyChangedCallback() &#123;</div><div class="line">            @Override</div><div class="line">            public void onPropertyChanged(final Observable observable, final int i) &#123;</div><div class="line">            //TODO</div><div class="line">                runOnUiThread(new Runnable() &#123;</div><div class="line">                    @Override</div><div class="line">                    public void run() &#123;</div><div class="line">                        switch (i) &#123;</div><div class="line">                            case BR.firstName: </div><div class="line">                           		 break;</div><div class="line">                            case BR.lastName:                                                         								 </div><div class="line">                            	 break;</div><div class="line">                            default:</div><div class="line">                                break;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
 
       
     </div>
@@ -417,7 +403,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/博客，文章/" rel="tag"># 博客，文章</a>
+            <a href="/tags/databinding/" rel="tag"># databinding</a>
           
         </div>
       
@@ -430,8 +416,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/12/01/databinding/" rel="next" title="databinding">
-                <i class="fa fa-chevron-left"></i> databinding
+              <a href="/post/hexo的搭建.html" rel="next" title="hexo的搭建">
+                <i class="fa fa-chevron-left"></i> hexo的搭建
               </a>
             
           </div>
@@ -440,8 +426,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/12/08/针对M1类型的nfc读取扇区初步了解/" rel="prev" title="针对M1类型的nfc读取扇区初步了解">
-                针对M1类型的nfc读取扇区初步了解 <i class="fa fa-chevron-right"></i>
+              <a href="/post/接口摘录.html" rel="prev" title="接口摘录">
+                接口摘录 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -508,7 +494,7 @@
             
               <div class="site-state-item site-state-posts">
               
-                <a href="/archives/">
+                <a href="/archives">
               
                   <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
